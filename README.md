@@ -16,12 +16,12 @@ source devel/setup.bash
 source devel/setup.bash只在当前终端生效，每次打开其他终端时都要重新source，这样比较麻烦。 解决方法：gedit ~/.bashrc，打开.bashrc文件，在文件底部添加source ~/path/to/ur5/devel/setup.bash，保存退出即可。
 
 ###  2.仿真测试
-1.打开终端,启动
-`roslaunch ur_gazebo ur5.launch`
-2.打开新终端
-`roslaunch ur5_moveit_config ur5_moveit_planning_execution.launch sim:=true`
-3.再打开一个新终端
-`roslaunch ur5_moveit_config moveit_rviz.launch config:=true`
+1.打开终端,启动  
+`roslaunch ur_gazebo ur5.launch`  
+2.打开新终端  
+`roslaunch ur5_moveit_config ur5_moveit_planning_execution.launch sim:=true`  
+3.再打开一个新终端  
+`roslaunch ur5_moveit_config moveit_rviz.launch config:=true`  
 
 ###  3.驱动真实的ur5机器人
 3.1安装externalcontrol
