@@ -96,7 +96,7 @@ from can.interfaces.interface import Bus为from can.interfaces import Bus
 6.运行python程序  
 下列python程序实例将实现控制真实UR5+Barrett Hand模拟完成某处抓取物体移动至另一处放下物体的操作。  
 以下是完整代码
-
+```python
 # coding=utf-8
 import sys
 import copy
@@ -180,7 +180,7 @@ group.go()
 hand.set_property(HAND_GROUP, M, MIN_ENC)
 hand.set_property(SPREAD, MODE, MODE_IDLE)
 time.sleep(1.5)
-
+```
 ###  7.ROS　Package
 将下载的“[Geomagic_Touch_ROS_Drivers](https://github.com/bharatm11/Geomagic_Touch_ROS_Drivers)目录下文件”或“[phantomOmniRos](https://github.com/PolarisYxh/phantomOmniRos)中geomagic_touch-master目录下文件”复制 到你的工作空间src目录下  
 在工作空间运行  
