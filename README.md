@@ -1,6 +1,6 @@
 # UR5+Barrett Hand-ROS
-UR5+Barrett Hand/Ubantu16.04/ROS Kinetic
-##  基本的安装流程
+UR5+Barrett Hand/Ubantu16.04/ROS Kinetic  (Barrett Hand-pcan-usb接口-PC)
+##  驱动实现流程
 ###  1.下载ur5相关的ros package
 ```
 source /opt/ros/Kinetic/setup.bash
@@ -28,12 +28,12 @@ source devel/setup.bash只在当前终端生效，每次打开其他终端时都
 3.1安装externalcontrol  
 要在真正的机器人上使用ur_robot_driver，需要在ur机器人上安装externalcontrol-1.0.urcap，该文件位于Universal_Robots_ROS_Driver/ur_robot_driver的resources文件夹内。注意：要安装此URCap，要求PolyScope的版本不得低于3.7。  
 安装步骤：  
-1.用U盘将此文件拷贝至机器人示教器的programs文件夹。  
-2.在欢迎屏幕上，选择Setup Robot，然后选择URCaps进入URCaps安装屏幕。  
-3.单击底部的小加号以打开文件选择器。 在此处，可以看到存储在机器人程序文件夹或插入的USB驱动器中的所有urcap文件。 选择并打开externalcontrol-1.0.urcap文件，然后单击打开。 现在，您的URCaps视图应在活动的URCaps列表中显示External Control，点击右下角重启机器人。  
-4.重新启动后，选择为机器人编程，在安装设置部分中找到External Control 。 然后设置外部PC的IP地址，本文设置为192.168.1.101 。请注意，机器人和外部PC必须位于同一网络中，理想情况下，彼此之间应直接连接，以最大程度地减少网络干扰。 自定义端口现在应该保持不变。  
-5.要使用新的URCap，请创建一个新程序并将External Control程序节点插入到程序树中。  
-6.重新点击命令按钮，则会看到在安装中输入的设置。 检查它们是否正确，然后将程序保存，可以将程序命名为external_control.urp。 现在机器人可以与此驱动程序一起使用了。  
+a.用U盘将此文件拷贝至机器人示教器的programs文件夹。  
+b.在欢迎屏幕上，选择Setup Robot，然后选择URCaps进入URCaps安装屏幕。  
+c.单击底部的小加号以打开文件选择器。 在此处，可以看到存储在机器人程序文件夹或插入的USB驱动器中的所有urcap文件。 选择并打开externalcontrol-1.0.urcap文件，然后单击打开。 现在，您的URCaps视图应在活动的URCaps列表中显示External Control，点击右下角重启机器人。  
+d.重新启动后，选择为机器人编程，在安装设置部分中找到External Control 。 然后设置外部PC的IP地址，本文设置为192.168.1.101 。请注意，机器人和外部PC必须位于同一网络中，理想情况下，彼此之间应直接连接，以最大程度地减少网络干扰。 自定义端口现在应该保持不变。  
+e.要使用新的URCap，请创建一个新程序并将External Control程序节点插入到程序树中。  
+f.重新点击命令按钮，则会看到在安装中输入的设置。 检查它们是否正确，然后将程序保存，可以将程序命名为external_control.urp。 现在机器人可以与此驱动程序一起使用了。  
 
 3.2 网络配置
 设置机器人静态IP. 设置机器人 ——> 设置网络菜单：  
@@ -48,16 +48,16 @@ IP地址: 192.168.1.2
 如果没有发生任何事情或引发错误，则无法从计算机访问机器人。  
 
 3.3 用ros驱动真实的ur5机器人  
-1.网线连接机器人和电脑，启动机器人。  
-2.打开电脑终端，启动机器人驱动程序。  
+a.网线连接机器人和电脑，启动机器人。  
+b.打开电脑终端，启动机器人驱动程序。  
 `roslaunch ur_robot_driver ur5_bringup.launch limited:=true robot_ip:=192.168.1.2`  
-3.示教器，运行程序 —> 文件 —> 加载程序 —> 选择3.1 节保存的external_control.urp程序，打开—>运行。  
-4.新终端启动moveit  
+c.示教器，运行程序 —> 文件 —> 加载程序 —> 选择3.1 节保存的external_control.urp程序，打开—>运行。  
+d.新终端启动moveit  
 `roslaunch ur5_moveit_config ur5_moveit_planning_execution.launch limited:=true`  
 此处报错： [ERROR] : Action client not connected: /follow_joint_trajectory  
 解决：找到/ur5_moveit_config/config/controllers.yaml 文件，name: 后添加 scaled_pos_joint_traj_controller  
 上述修改方法会导致用gazebo仿真时报错，因此使用gazebo时需要改回源文件中的 - name: ""  
-5.新终端启动rviz  
+e.新终端启动rviz  
 `roslaunch ur5_moveit_config moveit_rviz.launch config:=true`  
 然后就可以拖动rviz中的ur5的末端，plan然后execute控制真实的UR5运动。注意观察plan的运行轨迹，慎防撞击。  
 至此完成了用ros驱动真实ur5机器人。
@@ -185,18 +185,16 @@ time.sleep(1.5)
 ## 排雷提示
 **1.UR5无法使用externalcontrol**  
 
-UR臂的驱动有三个：ur_driver, ur_modern_driver, ur_robot_driver。 ur_driver和ur_modern_driver已经被官方弃用，ur_robot_driver适用于polyscope >= 3.7 版本的UR机械臂和CB>=5的UR-e机械臂。
-polyscope控制器版本能升级。
-只能逐次升级。
-3.4→3.5→3.6→3.7。
-下载地址：http://support.universal-robots.cn/download/
-电脑下载完后用U盘拷贝至UR控制器，在设置机器人中选择更新机器人软件，点击搜索逐步更新。
+UR臂的驱动有三个：ur_driver, ur_modern_driver, ur_robot_driver。 ur_driver和ur_modern_driver已经被官方弃用，ur_robot_driver适用于polyscope >= 3.7 版本的UR机械臂和CB>=5的UR-e机械臂。  
+polyscope控制器版本能升级。  
+只能逐次升级，eg：3.4→3.5→3.6→3.7。  
+下载地址：http://support.universal-robots.cn/download/  
+电脑下载完后用U盘拷贝至UR控制器，在设置机器人中选择更新机器人软件，点击搜索逐步更新。  
 
 **2.Barrett Hand-pcan-usb接口-PC**   
 
-尝试过安装ros-barrett-pkg，但始终报错Errors on CAN bus
-之后寻找peak-linux-driver安装存在问题，尝试各种peak-linux-driver版本
-也用过libbarrett（barrett做的ros package，是基于libbarrett库来做的）
-can通信测试发现是有通讯上的，总结应该是16版本不支持，但听说也有成功的案例，具体原因可能涉及底层，暂未明白。
+尝试过安装ros-barrett-pkg，但始终报错Errors on CAN bus  
+之后寻找peak-linux-driver安装存在问题，尝试各种peak-linux-driver版本  
+也用过libbarrett（barrett做的ros package，是基于libbarrett库来做的）  
+can通信测试发现是有通讯上的，总结应该是16版本不支持，但听说也有成功的案例，具体原因可能涉及底层，暂未明白。  
 因此最后是通过使用pyhand-2.0版本，修改example程序实现程序控制barrett hand。
-
