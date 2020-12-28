@@ -17,11 +17,11 @@ source devel/setup.bash只在当前终端生效，每次打开其他终端时都
 解决方法：gedit ~/.bashrc，打开.bashrc文件，在文件底部添加source ~/path/to/ur5/devel/setup.bash，保存退出即可。
 
 ###  2.仿真测试
-1.打开终端,启动  
+2.1打开终端,启动  
 `roslaunch ur_gazebo ur5.launch`  
-2.打开新终端  
+2.2打开新终端  
 `roslaunch ur5_moveit_config ur5_moveit_planning_execution.launch sim:=true`  
-3.再打开一个新终端  
+2.3再打开一个新终端  
 `roslaunch ur5_moveit_config moveit_rviz.launch config:=true`  
 
 ###  3.驱动真实的ur5机器人
@@ -66,13 +66,13 @@ IP地址: 192.168.1.2
 用以下版本  
 下载地址：https://git.barrett.com/firmware/bhand/tree/pyHand-2.0/
 ###  5.利用pyHand包中的示例驱动真实的Barrett Hand（Barrett Hand和PC用的是can-usb接口）
-1.USB接口连接电脑，启动机械手。  
-2.安装Python的can包   
+5.1USB接口连接电脑，启动机械手。  
+5.2安装Python的can包   
 `pip install python-can`  
 报错不影响后面的使用，可略过。  
-3.运行前先设置  
+5.3运行前先设置  
 `sudo ip link set can0 up type can bitrate 1000000`  
-4.示例修改  
+5.4示例修改  
 进入bhand-pyHand-2.0/pyHand/Archive_pyHand_1.0/examples  
 选择任意example，打开，修改    
 sys.path.append('../../source/pyHand_API')中括号修改为自身电脑对应pyHand_API的路径。  
@@ -85,15 +85,15 @@ from can.interfaces.interface import Bus为from can.interfaces import Bus
 ###  6.编写python程序驱动真实UR5+Barrett Hand
 需要在Kinetic上安装moveit  
 `sudo apt-get install ros-kinetic-moveit`  
-1.电源及接线确保没问题  
-2.打开电脑终端，启动机器人驱动程序。  
+6.1电源及接线确保没问题  
+6.2打开电脑终端，启动机器人驱动程序。  
 `roslaunch ur_robot_driver ur5_bringup.launch limited:=true robot_ip:=192.168.1.2`  
-3.示教器，运行程序  
-4.新终端启动moveit  
+6.3示教器，运行程序  
+6.4新终端启动moveit  
 `roslaunch ur5_moveit_config ur5_moveit_planning_execution.launch limited:=true`  
-5.运行前设置  
+6.5运行前设置  
 `sudo ip link set can0 up type can bitrate 1000000`  
-6.运行python程序  
+6.6运行python程序  
 下列python程序实例将实现控制真实UR5+Barrett Hand模拟完成某处抓取物体移动至另一处放下物体的操作。  
 以下是完整代码
 ```python
@@ -181,44 +181,22 @@ hand.set_property(HAND_GROUP, M, MIN_ENC)
 hand.set_property(SPREAD, MODE, MODE_IDLE)
 time.sleep(1.5)
 ```
-###  7.ROS　Package
-将下载的“[Geomagic_Touch_ROS_Drivers](https://github.com/bharatm11/Geomagic_Touch_ROS_Drivers)目录下文件”或“[phantomOmniRos](https://github.com/PolarisYxh/phantomOmniRos)中geomagic_touch-master目录下文件”复制 到你的工作空间src目录下  
-在工作空间运行  
-`catkin_make`  
-进行编译  
-然后即可通过roslaunch命令打开设备的rviz并且同步位姿
 
+## 排雷提示
+**1.UR5无法使用externalcontrol**  
 
-## 出现的一些错误及解决
-**1.运行`sudo ./geomagic.sh`时，提示Config directory not set correctly.:　No such file or directory**  
+UR臂的驱动有三个：ur_driver, ur_modern_driver, ur_robot_driver。 ur_driver和ur_modern_driver已经被官方弃用，ur_robot_driver适用于polyscope >= 3.7 版本的UR机械臂和CB>=5的UR-e机械臂。
+polyscope控制器版本能升级。
+只能逐次升级。
+3.4→3.5→3.6→3.7。
+下载地址：http://support.universal-robots.cn/download/
+电脑下载完后用U盘拷贝至UR控制器，在设置机器人中选择更新机器人软件，点击搜索逐步更新。
 
-解决：  
-检查step.4中的配置目录是否正常创建，以及/etc/enviroment中添加的环境变量是否正确保存  
+**2.Barrett Hand-pcan-usb接口-PC**   
 
-**2.运行`catkin_make`编译时出现　fatal error: bullet/LinearMath/btMatrix3x3.h:No such file or directory**   
+尝试过安装ros-barrett-pkg，但始终报错Errors on CAN bus
+之后寻找peak-linux-driver安装存在问题，尝试各种peak-linux-driver版本
+也用过libbarrett（barrett做的ros package，是基于libbarrett库来做的）
+can通信测试发现是有通讯上的，总结应该是16版本不支持，但听说也有成功的案例，具体原因可能涉及底层，暂未明白。
+因此最后是通过使用pyhand-2.0版本，修改example程序实现程序控制barrett hand。
 
-解决：  
-缺少必要的依赖，运行`sudo apt-get install libbullet-dev`即可 
-
-**3.运行[phantomOmniRos](https://github.com/PolarisYxh/phantomOmniRos)中launch文件时出现    
-Fail to initialize haptic device  
-/opt/ros/kinetic/lib/rviz/rviz/symbol lookup error:/opt/ros/kinetic/lib/librviz.so:undefined symbol:_ZNK9QRTreeViewportSizeHintEv**  
-
-解决:  
-Ubantu16.04安装相关驱动后出现了Rviz无法正常启动的的问题，尚未有好的结局方案，但可以在终端中用`sudo su`命令进入root用户权限  
-再运行`source ~/.bashrc`后，即可使用rviz  
-
-**4运行roslaunch时出现  
-HD Error: HD_COMM_ERROR  
-Communication Error: Check the device connection and configuration.  
-HHD: 0  
-Error Code: 302  
-Internal Error Code: -28  
-Message: Error during main scheduler callback**    
-
-解决：出现该错误一般是Geomagic_Touch_Diagnostic正在运行相关的调试和诊断内容导致的，可以将Geomagic_Touch_Diagnostic程序返回到Mode标签下或直接关闭，之后再运行roslaunch命令即可正常使用  
-
-**5.编译时出现  
-error：HLAPI does not name a type**  
-
-解决：尚未找到好的解决方法，但在实践中，卸载并重装cmake**有一定可能**解决该问题，卸载cmake时也会删除ros的部分内容，请**谨慎选择并做好备份**
